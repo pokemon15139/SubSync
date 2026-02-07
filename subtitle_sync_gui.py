@@ -169,8 +169,8 @@ class SubtitleSyncApp:
     def __init__(self, root):
         self.root = root
         self.root.title("SubSync Pro")
-        self.root.geometry("980x640")
-        self.root.minsize(900, 600)
+        self.root.geometry("800x500")
+        self.root.minsize(760, 480)
 
         # State
         self.video_path = None
@@ -338,67 +338,91 @@ class SubtitleSyncApp:
         main = ttk.Frame(self.root, padding=18, style='App.TFrame')
         main.pack(fill=tk.BOTH, expand=True)
 
-        # ── Title ──
+        # ── Header Bar ──
         header = ttk.Frame(main, style='App.TFrame')
         header.pack(fill=tk.X)
-        ttk.Label(header, text="SubSync Pro", style='Title.TLabel').pack(pady=(0, 2))
-        ttk.Label(header, text="字幕时间轴对齐工具 / Subtitle Timeline Sync", style='Subtitle.TLabel').pack(pady=(0, 10))
+        header.columnconfigure(0, weight=1)
+        header.columnconfigure(1, weight=1)
+        header.columnconfigure(2, weight=1)
+        ttk.Label(header, text="SubSync Pro", style='Title.TLabel').grid(row=0, column=1)
 
-        top_bar = ttk.Frame(main, style='App.TFrame')
-        top_bar.pack(fill=tk.X, pady=(0, 12))
-        top_bar.columnconfigure(0, weight=1)
-        top_bar.columnconfigure(1, weight=1)
-
-        video_card = ttk.Frame(top_bar, style='Panel.TFrame', padding=10)
-        video_card.grid(row=0, column=0, sticky='nsew', padx=(0, 8))
-        self.video_btn = tk.Button(
-            video_card,
-            text="🎬  视频文件",
-            font=('Helvetica', 13, 'bold'),
+        self.lang_var = tk.BooleanVar(value=True)
+        self.lang_toggle = tk.Checkbutton(
+            header,
+            text="中",
+            variable=self.lang_var,
+            onvalue=True,
+            offvalue=False,
+            indicatoron=False,
             fg=self.colors['text'],
-            bg=self.colors['card'],
+            bg=self.colors['panel'],
             activebackground=self.colors['card_border'],
+            activeforeground=self.colors['text'],
+            selectcolor=self.colors['panel'],
+            padx=10,
+            pady=2,
+            command=lambda: self.lang_toggle.config(text="中" if self.lang_var.get() else "En"),
+        )
+        self.lang_toggle.grid(row=0, column=2, sticky='e')
+
+        ttk.Label(main, text="字幕时间轴对齐工具", style='Subtitle.TLabel').pack(pady=(4, 10))
+
+        # ── Drop Zones ──
+        drop_row = ttk.Frame(main, style='App.TFrame')
+        drop_row.pack(fill=tk.X, pady=(0, 12))
+        drop_row.columnconfigure(0, weight=1)
+        drop_row.columnconfigure(1, weight=1)
+
+        drop_video = tk.Frame(drop_row, bg=self.colors['panel'], highlightbackground=self.colors['card_border'], highlightthickness=1)
+        drop_video.grid(row=0, column=0, sticky='nsew', padx=(0, 10))
+        self.video_btn = tk.Button(
+            drop_video,
+            text="🎬\n视频文件",
+            font=('Helvetica', 14, 'bold'),
+            fg=self.colors['text'],
+            bg=self.colors['panel'],
+            activebackground=self.colors['card'],
             bd=0,
-            pady=14,
+            pady=18,
             command=self.pick_video,
         )
         self.video_btn.pack(fill=tk.BOTH, expand=True)
-        self.video_entry = ttk.Entry(video_card, font=('Menlo', 11), style='App.TEntry')
-        self.video_entry.pack(fill=tk.X, pady=(10, 0))
+        self.video_entry = ttk.Entry(drop_video, font=('Menlo', 11), style='App.TEntry')
+        self.video_entry.pack(fill=tk.X, padx=12, pady=(8, 10))
         self.video_entry.insert(0, "拖入视频文件到此处，或点击选择")
         self.video_entry.config(foreground='#999')
         self.video_entry.bind('<FocusIn>', lambda e: self._clear_placeholder(self.video_entry, "拖入视频文件到此处，或点击选择"))
         self.video_entry.bind('<FocusOut>', lambda e: self._restore_placeholder(self.video_entry, "拖入视频文件到此处，或点击选择"))
         self.video_entry.bind('<Return>', lambda e: self._accept_video_from_entry())
-        self.video_status = ttk.Label(video_card, text="", foreground=self.colors['success'], background=self.colors['panel'])
-        self.video_status.pack(anchor='w', pady=(6, 0))
+        self.video_status = ttk.Label(drop_video, text="", foreground=self.colors['success'], background=self.colors['panel'])
+        self.video_status.pack(anchor='w', padx=12, pady=(0, 8))
 
-        sub_card = ttk.Frame(top_bar, style='Panel.TFrame', padding=10)
-        sub_card.grid(row=0, column=1, sticky='nsew', padx=(8, 0))
+        drop_sub = tk.Frame(drop_row, bg=self.colors['panel'], highlightbackground=self.colors['card_border'], highlightthickness=1)
+        drop_sub.grid(row=0, column=1, sticky='nsew', padx=(10, 0))
         self.sub_btn = tk.Button(
-            sub_card,
-            text="📄  字幕文件",
-            font=('Helvetica', 13, 'bold'),
+            drop_sub,
+            text="📄\n字幕文件",
+            font=('Helvetica', 14, 'bold'),
             fg=self.colors['text'],
-            bg=self.colors['card'],
-            activebackground=self.colors['card_border'],
+            bg=self.colors['panel'],
+            activebackground=self.colors['card'],
             bd=0,
-            pady=14,
+            pady=18,
             command=self.pick_subtitle,
         )
         self.sub_btn.pack(fill=tk.BOTH, expand=True)
-        self.sub_entry = ttk.Entry(sub_card, font=('Menlo', 11), style='App.TEntry')
-        self.sub_entry.pack(fill=tk.X, pady=(10, 0))
+        self.sub_entry = ttk.Entry(drop_sub, font=('Menlo', 11), style='App.TEntry')
+        self.sub_entry.pack(fill=tk.X, padx=12, pady=(8, 10))
         self.sub_entry.insert(0, "拖入字幕文件到此处，或点击选择")
         self.sub_entry.config(foreground='#999')
         self.sub_entry.bind('<FocusIn>', lambda e: self._clear_placeholder(self.sub_entry, "拖入字幕文件到此处，或点击选择"))
         self.sub_entry.bind('<FocusOut>', lambda e: self._restore_placeholder(self.sub_entry, "拖入字幕文件到此处，或点击选择"))
         self.sub_entry.bind('<Return>', lambda e: self._accept_sub_from_entry())
-        self.sub_status = ttk.Label(sub_card, text="", foreground=self.colors['success'], background=self.colors['panel'])
-        self.sub_status.pack(anchor='w', pady=(6, 0))
+        self.sub_status = ttk.Label(drop_sub, text="", foreground=self.colors['success'], background=self.colors['panel'])
+        self.sub_status.pack(anchor='w', padx=12, pady=(0, 8))
 
-        # ── Step 3: Dialogue List ──
-        f3 = ttk.LabelFrame(main, text="❸ 点击选择用于对齐的对白", padding=10, style='Card.TLabelframe')
+        # ── Subtitle List ──
+        f3 = ttk.LabelFrame(main, text="字幕列表", padding=8, style='Card.TLabelframe')
         f3.pack(fill=tk.BOTH, expand=True, pady=(0, 10))
 
         columns = ('index', 'time', 'text')
@@ -406,7 +430,7 @@ class SubtitleSyncApp:
             f3,
             columns=columns,
             show='headings',
-            height=10,
+            height=8,
             selectmode='browse',
             style='App.Treeview',
         )
@@ -414,8 +438,8 @@ class SubtitleSyncApp:
         self.tree.heading('time', text='时间')
         self.tree.heading('text', text='对白内容')
         self.tree.column('index', width=40, minwidth=40, stretch=False, anchor='center')
-        self.tree.column('time', width=90, minwidth=90, stretch=False, anchor='center')
-        self.tree.column('text', width=560, minwidth=200)
+        self.tree.column('time', width=110, minwidth=90, stretch=False, anchor='center')
+        self.tree.column('text', width=520, minwidth=200)
 
         scrollbar = ttk.Scrollbar(f3, orient=tk.VERTICAL, command=self.tree.yview)
         self.tree.configure(yscrollcommand=scrollbar.set)
@@ -423,84 +447,76 @@ class SubtitleSyncApp:
         scrollbar.pack(side=tk.RIGHT, fill=tk.Y)
         self.tree.bind('<<TreeviewSelect>>', self.on_select_dialogue)
 
-        # ── Step 4: Time Input + Stepper ──
-        f4 = ttk.LabelFrame(main, text="❹ 该对白在影片中出现的时间", padding=10, style='Card.TLabelframe')
-        f4.pack(fill=tk.X, pady=(0, 8))
+        # ── Control Panel ──
+        control_panel = tk.Frame(main, bg=self.colors['panel'], highlightbackground=self.colors['card_border'], highlightthickness=1)
+        control_panel.pack(fill=tk.X)
 
-        # Large time display
-        self.time_display = ttk.Label(f4, text="00:00.000", style='TimeDisplay.TLabel', anchor='center')
-        self.time_display.pack(fill=tk.X, pady=(0, 8))
-        self.time_display.configure(background=self.colors['card'])
+        ttk.Label(control_panel, text="原始时间:", background=self.colors['panel'], foreground=self.colors['muted']).pack(side=tk.LEFT, padx=(12, 4), pady=10)
+        self.source_time_label = ttk.Label(control_panel, text="--", background=self.colors['panel'], foreground=self.colors['text'])
+        self.source_time_label.pack(side=tk.LEFT)
 
-        # Input row
-        input_row = ttk.Frame(f4)
-        input_row.pack()
-
-        ttk.Label(input_row, text="输入时间:", background=self.colors['card'], foreground=self.colors['text']).pack(side=tk.LEFT, padx=(0, 5))
-        self.time_entry = ttk.Entry(input_row, width=18, font=('Menlo', 13), justify='center', style='App.TEntry')
-        self.time_entry.pack(side=tk.LEFT, padx=(0, 8))
+        ttk.Label(control_panel, text="  目标时间:", background=self.colors['panel'], foreground=self.colors['muted']).pack(side=tk.LEFT, padx=(16, 4))
+        self.time_entry = ttk.Entry(control_panel, width=10, font=('Menlo', 12), justify='center', style='App.TEntry')
+        self.time_entry.pack(side=tk.LEFT, padx=(0, 4))
         self.time_entry.bind('<KeyRelease>', self._on_time_key)
         self.time_entry.bind('<Return>', self._on_time_key)
-        ttk.Label(
-            input_row,
-            text="(20 / 1:30 / 1m30s)",
-            background=self.colors['card'],
-            foreground=self.colors['muted'],
+
+        stepper = tk.Frame(control_panel, bg=self.colors['panel'])
+        stepper.pack(side=tk.LEFT, padx=(0, 10))
+        tk.Button(
+            stepper,
+            text="−",
+            font=('Helvetica', 12, 'bold'),
+            fg=self.colors['text'],
+            bg=self.colors['card'],
+            activebackground=self.colors['card_border'],
+            bd=0,
+            width=2,
+            command=lambda: self._step_time(-0.5),
         ).pack(side=tk.LEFT)
+        tk.Button(
+            stepper,
+            text="+",
+            font=('Helvetica', 12, 'bold'),
+            fg=self.colors['text'],
+            bg=self.colors['card'],
+            activebackground=self.colors['card_border'],
+            bd=0,
+            width=2,
+            command=lambda: self._step_time(0.5),
+        ).pack(side=tk.LEFT, padx=(4, 0))
 
-        # Stepper buttons
-        stepper_row = ttk.Frame(f4)
-        stepper_row.pack(pady=(8, 4))
+        self.run_btn = tk.Button(
+            control_panel,
+            text="同步并保存",
+            font=('Helvetica', 13, 'bold'),
+            fg='white',
+            bg=self.colors['accent'],
+            activebackground=self.colors['accent_dark'],
+            bd=0,
+            padx=20,
+            pady=6,
+            command=self.execute,
+        )
+        self.run_btn.pack(side=tk.LEFT, padx=(10, 12))
 
-        btn_data = [
-            ("−1s",    -1.0),
-            ("−100ms", -0.1),
-            ("+100ms", +0.1),
-            ("+1s",    +1.0),
-        ]
-        for label, delta in btn_data:
-            b = tk.Button(stepper_row, text=label, font=('Menlo', 11, 'bold'),
-                         fg=self.colors['accent'] if delta > 0 else self.colors['warning'],
-                         bg=self.colors['panel'], activebackground=self.colors['card_border'],
-                         bd=0, padx=12, pady=5, highlightthickness=0,
-                         command=lambda d=delta: self._step_time(d))
-            b.pack(side=tk.LEFT, padx=3)
-
-        # Offset display
-        self.offset_label = ttk.Label(f4, text="", style='Offset.TLabel', anchor='center')
-        self.offset_label.pack(fill=tk.X, pady=(6, 0))
-
-        # ── Execute + Options ──
-        bottom = ttk.Frame(main, style='App.TFrame')
-        bottom.pack(fill=tk.X, pady=(6, 4))
-        bottom.columnconfigure(0, weight=1)
-        bottom.columnconfigure(1, weight=1)
-        bottom.columnconfigure(2, weight=1)
-
-        time_info = ttk.Frame(bottom, style='App.TFrame')
-        time_info.grid(row=0, column=0, sticky='w')
-        ttk.Label(time_info, text="原始时间：", background=self.colors['bg'], foreground=self.colors['muted']).pack(side=tk.LEFT)
-        self.source_time_label = ttk.Label(time_info, text="--", background=self.colors['bg'], foreground=self.colors['text'])
-        self.source_time_label.pack(side=tk.LEFT)
-        ttk.Label(time_info, text="    目标时间：", background=self.colors['bg'], foreground=self.colors['muted']).pack(side=tk.LEFT)
-        self.target_time_label = ttk.Label(time_info, text="--", background=self.colors['bg'], foreground=self.colors['text'])
-        self.target_time_label.pack(side=tk.LEFT)
-
-        self.run_btn = ttk.Button(bottom, text="▶  对齐并输出字幕", style='Action.TButton', command=self.execute)
-        self.run_btn.grid(row=0, column=1)
-
-        self.open_video_var = tk.BooleanVar(value=False)
+        self.open_video_var = tk.BooleanVar(value=True)
         ttk.Checkbutton(
-            bottom,
-            text="完成后打开视频播放",
+            control_panel,
+            text="完成后打开视频",
             variable=self.open_video_var,
             style='App.TCheckbutton',
-        ).grid(row=0, column=2, sticky='e')
+        ).pack(side=tk.LEFT)
+
+        self.time_display = ttk.Label(main, text="", style='TimeDisplay.TLabel', anchor='center')
+        self.time_display.pack_forget()
+        self.offset_label = ttk.Label(main, text="", style='Offset.TLabel', anchor='center')
+        self.offset_label.pack_forget()
 
         # Status
         self.status_var = tk.StringVar(value="")
         self.status_label = ttk.Label(main, textvariable=self.status_var, style='Status.TLabel', wraplength=700)
-        self.status_label.pack(pady=(2, 0))
+        self.status_label.pack(pady=(6, 0))
 
     # ── Placeholder helpers ──
 
@@ -612,10 +628,6 @@ class SubtitleSyncApp:
         self.selected_index = 0
         self.status_var.set(f"已加载 {len(self.entries)} 条对白，显示前 {count} 条")
         self.source_time_label.config(text=secs_to_display(self.entries[0]['start']))
-        if self.has_time:
-            self.target_time_label.config(text=secs_to_display(self.current_secs))
-        else:
-            self.target_time_label.config(text="--")
 
     def on_select_dialogue(self, event):
         sel = self.tree.selection()
@@ -673,7 +685,6 @@ class SubtitleSyncApp:
         self.offset_label.config(
             text=f"偏移: {format_offset(offset)}    (#{self.selected_index+1} 「{ref_text}」  {secs_to_display(source)} → {secs_to_display(self.current_secs)})")
         self.source_time_label.config(text=secs_to_display(source))
-        self.target_time_label.config(text=secs_to_display(self.current_secs))
 
     # ── Execute ──
 

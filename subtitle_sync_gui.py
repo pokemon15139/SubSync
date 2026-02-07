@@ -186,19 +186,23 @@ class SubtitleSyncApp:
         style = ttk.Style()
         style.theme_use('clam')
         self.colors = {
-            'bg': '#1b1f27',
-            'panel': '#232834',
-            'card': '#2b313e',
-            'card_border': '#3a4352',
-            'text': '#e6eaf2',
-            'muted': '#a3adbd',
-            'accent': '#2d6cdf',
-            'accent_dark': '#2155b5',
+            'bg': '#1f242e',
+            'panel': '#2a303c',
+            'card': '#2f3643',
+            'card_border': '#3d4656',
+            'text': '#eef1f7',
+            'muted': '#a6afbe',
+            'accent': '#2f6bdc',
+            'accent_dark': '#2257b5',
             'success': '#22c55e',
             'warning': '#f59e0b',
-            'list_bg': '#1f232c',
-            'list_alt': '#232935',
+            'list_bg': '#222833',
+            'list_alt': '#222833',
             'list_select': '#2b5ea8',
+            'drop_bg': '#9ea0a3',
+            'drop_text': '#f2f2f2',
+            'drop_border': '#61656d',
+            'input_bg': '#2a313d',
         }
         self.root.configure(bg=self.colors['bg'])
 
@@ -221,7 +225,7 @@ class SubtitleSyncApp:
         )
         style.configure(
             'Title.TLabel',
-            font=('Helvetica', 22, 'bold'),
+            font=('Helvetica', 24, 'bold'),
             background=self.colors['bg'],
             foreground=self.colors['text'],
         )
@@ -285,8 +289,8 @@ class SubtitleSyncApp:
         )
         style.configure(
             'App.TEntry',
-            fieldbackground=self.colors['card'],
-            background=self.colors['card'],
+            fieldbackground=self.colors['input_bg'],
+            background=self.colors['input_bg'],
             foreground=self.colors['text'],
             insertcolor=self.colors['text'],
             bordercolor=self.colors['card_border'],
@@ -308,7 +312,7 @@ class SubtitleSyncApp:
             background=self.colors['list_bg'],
             fieldbackground=self.colors['list_bg'],
             foreground=self.colors['text'],
-            rowheight=28,
+            rowheight=26,
             bordercolor=self.colors['card_border'],
         )
         style.map(
@@ -373,52 +377,52 @@ class SubtitleSyncApp:
         drop_row.columnconfigure(0, weight=1)
         drop_row.columnconfigure(1, weight=1)
 
-        drop_video = tk.Frame(drop_row, bg=self.colors['card'], highlightbackground=self.colors['card_border'], highlightthickness=1)
+        drop_video = tk.Frame(drop_row, bg=self.colors['panel'], highlightbackground=self.colors['card_border'], highlightthickness=1)
         drop_video.grid(row=0, column=0, sticky='nsew', padx=(0, 10))
         self.video_btn = tk.Button(
             drop_video,
             text="🎬\n视频文件",
-            font=('Helvetica', 14, 'bold'),
-            fg=self.colors['text'],
-            bg=self.colors['card'],
-            activebackground=self.colors['card'],
+            font=('Helvetica', 15, 'bold'),
+            fg=self.colors['drop_text'],
+            bg=self.colors['drop_bg'],
+            activebackground=self.colors['drop_bg'],
             bd=0,
-            pady=18,
+            pady=20,
             command=self.pick_video,
         )
-        self.video_btn.pack(fill=tk.BOTH, expand=True)
+        self.video_btn.pack(fill=tk.BOTH, expand=True, padx=12, pady=(12, 6))
         self.video_entry = ttk.Entry(drop_video, font=('Menlo', 11), style='App.TEntry')
-        self.video_entry.pack(fill=tk.X, padx=12, pady=(8, 10))
+        self.video_entry.pack(fill=tk.X, padx=12, pady=(6, 10))
         self.video_entry.insert(0, "拖入视频文件到此处，或点击选择")
         self.video_entry.config(foreground='#999')
         self.video_entry.bind('<FocusIn>', lambda e: self._clear_placeholder(self.video_entry, "拖入视频文件到此处，或点击选择"))
         self.video_entry.bind('<FocusOut>', lambda e: self._restore_placeholder(self.video_entry, "拖入视频文件到此处，或点击选择"))
         self.video_entry.bind('<Return>', lambda e: self._accept_video_from_entry())
-        self.video_status = ttk.Label(drop_video, text="", foreground=self.colors['success'], background=self.colors['card'])
+        self.video_status = ttk.Label(drop_video, text="", foreground=self.colors['success'], background=self.colors['panel'])
         self.video_status.pack(anchor='w', padx=12, pady=(0, 8))
 
-        drop_sub = tk.Frame(drop_row, bg=self.colors['card'], highlightbackground=self.colors['card_border'], highlightthickness=1)
+        drop_sub = tk.Frame(drop_row, bg=self.colors['panel'], highlightbackground=self.colors['card_border'], highlightthickness=1)
         drop_sub.grid(row=0, column=1, sticky='nsew', padx=(10, 0))
         self.sub_btn = tk.Button(
             drop_sub,
             text="📄\n字幕文件",
-            font=('Helvetica', 14, 'bold'),
-            fg=self.colors['text'],
-            bg=self.colors['card'],
-            activebackground=self.colors['card'],
+            font=('Helvetica', 15, 'bold'),
+            fg=self.colors['drop_text'],
+            bg=self.colors['drop_bg'],
+            activebackground=self.colors['drop_bg'],
             bd=0,
-            pady=18,
+            pady=20,
             command=self.pick_subtitle,
         )
-        self.sub_btn.pack(fill=tk.BOTH, expand=True)
+        self.sub_btn.pack(fill=tk.BOTH, expand=True, padx=12, pady=(12, 6))
         self.sub_entry = ttk.Entry(drop_sub, font=('Menlo', 11), style='App.TEntry')
-        self.sub_entry.pack(fill=tk.X, padx=12, pady=(8, 10))
+        self.sub_entry.pack(fill=tk.X, padx=12, pady=(6, 10))
         self.sub_entry.insert(0, "拖入字幕文件到此处，或点击选择")
         self.sub_entry.config(foreground='#999')
         self.sub_entry.bind('<FocusIn>', lambda e: self._clear_placeholder(self.sub_entry, "拖入字幕文件到此处，或点击选择"))
         self.sub_entry.bind('<FocusOut>', lambda e: self._restore_placeholder(self.sub_entry, "拖入字幕文件到此处，或点击选择"))
         self.sub_entry.bind('<Return>', lambda e: self._accept_sub_from_entry())
-        self.sub_status = ttk.Label(drop_sub, text="", foreground=self.colors['success'], background=self.colors['card'])
+        self.sub_status = ttk.Label(drop_sub, text="", foreground=self.colors['success'], background=self.colors['panel'])
         self.sub_status.pack(anchor='w', padx=12, pady=(0, 8))
 
         # ── Subtitle List ──
@@ -470,8 +474,8 @@ class SubtitleSyncApp:
             text="−",
             font=('Helvetica', 12, 'bold'),
             fg=self.colors['text'],
-            bg=self.colors['card'],
-            activebackground=self.colors['card_border'],
+            bg='#8f939b',
+            activebackground='#8f939b',
             bd=0,
             width=2,
             command=lambda: self._step_time(-0.5),
@@ -481,8 +485,8 @@ class SubtitleSyncApp:
             text="+",
             font=('Helvetica', 12, 'bold'),
             fg=self.colors['text'],
-            bg=self.colors['card'],
-            activebackground=self.colors['card_border'],
+            bg='#8f939b',
+            activebackground='#8f939b',
             bd=0,
             width=2,
             command=lambda: self._step_time(0.5),
